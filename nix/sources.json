@@ -59,18 +59,6 @@
         "url": "https://github.com/NixOS/nixpkgs/archive/cee3ca37c68dad981396365bf4b1d0c807ac4eb4.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "nixpkgs-mozilla": {
-        "branch": "master",
-        "description": "mozilla related nixpkgs (extends nixos/nixpkgs repo)",
-        "homepage": null,
-        "owner": "mozilla",
-        "repo": "nixpkgs-mozilla",
-        "rev": "ad227c55c34124cde17b30c9bb28be6cd3c70815",
-        "sha256": "1g33k5da71b11bkia7gjfv70d3bpd0vafidgf9qjrgvld0s2n9r9",
-        "type": "tarball",
-        "url": "https://github.com/mozilla/nixpkgs-mozilla/archive/ad227c55c34124cde17b30c9bb28be6cd3c70815.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "pre-commit-hooks.nix": {
         "branch": "master",
         "description": "Seamless integration of https://pre-commit.com git hooks with Nix.",
