@@ -43,6 +43,10 @@ enum Cli {
     path: PathBuf,
   },
   Repl,
+  Graph {
+    #[structopt(parse(try_from_str = parse_cid))]
+    input: Cid,
+  },
 }
 
 #[derive(Debug, StructOpt)]
@@ -83,6 +87,25 @@ async fn main() -> std::io::Result<()> {
   match command {
     Cli::Repl => {
       repl::main();
+      Ok(())
+    }
+    Cli::Graph { input } => {
+      let store = Rc::new(FileStore::new());
+      let resolver = |cid| {
+        store
+          .clone()
+          .get(cid)
+          .and_then(|ipld| yatima_core::package::Package::from_ipld(&ipld).ok())
+      };
+      match resolver(input) {
+        Some(package) => {
+          let mut package_graph = yatima_core::graph::PackageGraph::default();
+          if package_graph.add_package(resolver, package) {
+            println!("{}", package_graph.to_dot());
+          }
+        }
+        None => eprintln!("Expected valid package cid"),
+      };
       Ok(())
     }
     Cli::Show { typ: ShowType::Package { input } } => {
