@@ -1,4 +1,4 @@
-use cid::Cid;
+use sp_cid::Cid;
 use petgraph::{
   dot::{
     Config,
@@ -11,7 +11,7 @@ use petgraph::{
   },
 };
 
-use crate::{
+use yatima_core::{
   dag::*,
   dll::DLL,
   literal::{
@@ -567,7 +567,7 @@ impl fmt::Display for DagEdge {
 #[cfg(test)]
 mod test {
   use super::*;
-  use crate::eval::test::parse;
+  use yatima_core::eval::test::parse;
 
   #[test]
   fn test() {

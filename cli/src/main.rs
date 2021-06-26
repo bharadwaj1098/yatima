@@ -35,8 +35,11 @@ enum Cli {
     path: PathBuf,
   },
   Show {
-    #[structopt(subcommand)]
-    typ: ShowType,
+    input: String,
+    #[structopt(name = "type", default_value = "raw", long, short)]
+    typ_: String,
+    #[structopt(name = "var_index", long, short)]
+    var_index: bool,
   },
   Run {
     #[structopt(parse(from_os_str))]
@@ -89,20 +92,32 @@ async fn main() -> std::io::Result<()> {
       repl::main();
       Ok(())
     }
-    Cli::Graph { input } => {
+    Cli::Show { input, typ_, var_index } => {
+      use yatima_core::parse;
       let store = Rc::new(FileStore::new());
-      let resolver = |cid| {
-        store
-          .clone()
-          .get(cid)
-          .and_then(|ipld| yatima_core::package::Package::from_ipld(&ipld).ok())
-      };
-      match resolver(input) {
-        Some(package) => {
-          let mut package_graph = yatima_core::graph::PackageGraph::default();
-          if package_graph.add_package(resolver, package) {
-            println!("{}", package_graph.to_dot());
-          }
+      let (_, cid) = parse::package::parse_link(parse::span::Span::new(&input))
+        .expect("valid cid");
+      let ipld = store.get(cid).expect(&format!("cannot find {}", cid));
+      match typ_.as_str() {
+        "package" => {
+          let pack = yatima_core::package::Package::from_ipld(&ipld)
+            .expect("package ipld");
+          println!("{:?}", pack);
+        }
+        "entry" => {
+          let entry =
+            yatima_core::package::Entry::from_ipld(&ipld).expect("entry ipld");
+          println!("{:?}", entry);
+          let def = file::parse::entry_to_def(entry, store).expect("valid def");
+          println!("{}", def.pretty("#^".to_string(), var_index));
+        }
+        "anon" => {
+          let pack =
+            yatima_core::anon::Anon::from_ipld(&ipld).expect("anon ipld");
+          println!("{:?}", pack);
+        }
+        _ => {
+          println!("{:?}", ipld);
         }
         None => eprintln!("Expected valid package cid"),
       };
